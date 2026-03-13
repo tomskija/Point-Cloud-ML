@@ -34,4 +34,4 @@ results/
 .DS_Store
 Thumbs.db
 
-pointCloudMLCalculator\Data
+pointCloudMLCalculator/Data
