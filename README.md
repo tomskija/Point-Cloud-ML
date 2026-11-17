@@ -75,7 +75,7 @@ git clone https://github.com/tomskija/Point-Cloud-ML.git
 cd Point-Cloud-ML
 ```
 
-Open the folder in VS Code and select **Reopen in Container**. Docker Compose starts two services: the calculator and an MLflow tracking server.
+Open the folder in VS Code and select **Reopen in Container**. Docker Compose starts three services: the calculator, its FastAPI server, and an MLflow tracking server.
 
 **Run the calculator:**
 ```bash
@@ -96,9 +96,27 @@ docker compose exec calculator python pointCloudMLCalculator/Calculator.py
 
 | Service   | URL                   |
 |-----------|-----------------------|
+| API       | http://localhost:8003  |
+| API Docs  | http://localhost:8003/docs |
 | MLflow UI | http://localhost:5003 |
 
 MLflow is on 5003 so it can run next to my other repos.
+
+---
+
+## API Endpoints
+
+| Method | Endpoint                | Description                                        |
+|--------|-------------------------|----------------------------------------------------|
+| `GET`  | `/health`               | Check if the API is running                        |
+| `GET`  | `/ready`                | Check the calculator and its schema load           |
+| `GET`  | `/schema`               | Input form definition (fields, types, defaults, groups) used by the UI |
+| `POST` | `/calculate`            | Submit a run with `{"inJson": {...}}`, returns `job_id` immediately |
+| `GET`  | `/runs/{job_id}/status` | Poll run status: pending / queued / running / complete / failed |
+| `GET`  | `/jobs/{job_id}/output` | Output params and tables once the run is complete |
+| `GET`  | `/jobs`                 | List every job the API has seen                    |
+
+Runs go one at a time per calculator in a background thread, and each API run writes to its own folder under `Data/Synthetic/` so runs don't overwrite each other. The full interactive docs are at `http://localhost:8003/docs`. This is the same contract as Production-Prediction-ML, which is what lets [ML-Platform-UI](https://github.com/tomskija/ML-Platform-UI) drive every calculator the same way.
 
 ---
 
@@ -134,6 +152,7 @@ Point-Cloud-ML/
 │   ├── Calculator.py                   # Orchestrator, routes PROB01 to PROB04
 │   ├── dataPrep/
 │   │   ├── syntheticData.py            # Synthetic point cloud generator
+│   │   ├── schema.py                   # Input form definition served at /schema
 │   │   ├── dataChecks.py               # Input and point cloud checks
 │   │   ├── inputWrapper.py             # JSON input parser
 │   │   ├── outputWrapper.py            # Output wrapper
@@ -142,11 +161,13 @@ Point-Cloud-ML/
 ├── tests/
 │   ├── in_jsons/                       # pytest input configs
 │   ├── test_synthetic_data.py
+│   ├── test_api.py
 │   └── test_calculator.py
+├── api.py                              # FastAPI, same calculator contract as PPML
 ├── conftest.py                         # pytest path config
 ├── Dockerfile                          # Python 3.11
 ├── Dockerfile.mlflow                   # MLflow server
-├── docker-compose.yml                  # calculator, mlflow
+├── docker-compose.yml                  # calculator, api, mlflow
 └── requirements.txt
 ```
 
@@ -154,4 +175,4 @@ Point-Cloud-ML/
 
 ## Dependencies
 
-Python 3.11 · numpy · pandas · scipy · scikit-learn · matplotlib · seaborn · openpyxl · mlflow · pytest
+Python 3.11 · numpy · pandas · scipy · scikit-learn · matplotlib · seaborn · openpyxl · mlflow · pytest · fastapi · uvicorn · pydantic

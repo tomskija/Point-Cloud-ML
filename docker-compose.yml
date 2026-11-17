@@ -20,6 +20,27 @@ services:
     networks:
       - ml-network
 
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: point-cloud-ml-api
+    command: uvicorn api:app --host 0.0.0.0 --port 8003 --reload
+    volumes:
+      - .:/workspace
+      - mlruns:/workspace/mlruns
+    ports:
+      - "8003:8003"
+    environment:
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+      - PYTHONPATH=/workspace/pointCloudMLCalculator
+    depends_on:
+      mlflow:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - ml-network
+
   mlflow:
     build:
       context: .
