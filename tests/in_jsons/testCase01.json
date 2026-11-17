@@ -1,0 +1,52 @@
+{
+    "data": {
+        "params": [
+            {
+                "name": "name",
+                "value": "PointCloud_Test01",
+                "valueType": 3
+            },
+            {
+                "name": "problemType",
+                "value": "PROB01",
+                "valueType": 3
+            },
+            {
+                "name": "dataset_mode",
+                "value": "synthetic",
+                "valueType": 3
+            },
+            {
+                "name": "random_seed",
+                "value": 5195,
+                "valueType": 2
+            },
+            {
+                "name": "output_dir",
+                "value": "Data/Synthetic/terrain_small",
+                "valueType": 3
+            },
+            {
+                "name": "geometry",
+                "value": "terrain",
+                "valueType": 3
+            },
+            {
+                "name": "n_points",
+                "value": 20000,
+                "valueType": 2
+            },
+            {
+                "name": "n_anomaly_patches",
+                "value": 3,
+                "valueType": 2
+            },
+            {
+                "name": "outlier_fraction",
+                "value": 0.005,
+                "valueType": 2
+            }
+        ],
+        "tables": []
+    }
+}

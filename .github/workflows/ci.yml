@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [release/dev]
+  pull_request:
+    branches: [release/dev]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build and start services
+        run: docker compose up -d --build
+
+      - name: Wait for services to be healthy
+        run: |
+          echo "Waiting for MLflow..."
+          for i in $(seq 1 30); do
+            docker compose exec -T calculator python -c "import urllib.request; urllib.request.urlopen('http://mlflow:5000')" && break
+            sleep 5
+          done
+
+      - name: Run pytest
+        run: |
+          docker compose exec -T calculator pytest tests/ -v
+
+      - name: Run calculator on example input
+        run: |
+          docker compose exec -T calculator python pointCloudMLCalculator/Calculator.py
+
+      - name: Stop services
+        if: always()
+        run: docker compose down

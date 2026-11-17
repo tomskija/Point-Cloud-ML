@@ -1,15 +1,47 @@
 version: "3.8"
 
 services:
-  jupyter:
+
+  calculator:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: rf-production-prediction
-    ports:
-      - "8888:8888"
+    container_name: point-cloud-ml-local-devcontainer
     volumes:
       - .:/workspace
+      - mlruns:/workspace/mlruns
     environment:
-      - JUPYTER_ENABLE_LAB=yes
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+      - PYTHONPATH=/workspace/pointCloudMLCalculator
+    depends_on:
+      mlflow:
+        condition: service_healthy
+    restart: "no"
+    networks:
+      - ml-network
+
+  mlflow:
+    build:
+      context: .
+      dockerfile: Dockerfile.mlflow
+    container_name: point-cloud-ml-mlflow-server
+    ports:
+      - "5003:5000"   # 5003 on the host so it can run next to the other repos' MLflow servers
+    volumes:
+      - mlruns:/mlruns
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - ml-network
+
+volumes:
+  mlruns:
+
+networks:
+  ml-network:
+    driver: bridge

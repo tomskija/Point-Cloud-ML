@@ -1,0 +1,15 @@
+.git/
+.github/
+Data/
+_to_delete/
+mlruns/
+mlflow.db
+FiguresAndResults/
+**/__pycache__/
+*.py[cod]
+.pytest_cache/
+.vscode/
+.DS_Store
+*.sgy
+*.segy
+*.xlsx

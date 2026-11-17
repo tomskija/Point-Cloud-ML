@@ -35,3 +35,11 @@ results/
 Thumbs.db
 
 pointCloudMLCalculator/Data
+
+# Synthetic / generated data, MLflow stores, scratch
+/Data/
+mlruns/
+mlflow.db
+_to_delete/
+# Test input JSONs must be tracked
+!tests/in_jsons/*.json
